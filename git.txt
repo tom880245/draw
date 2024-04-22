@@ -1,0 +1,22 @@
+git init
+git add .
+
+git commit -m "Initial commit"
+
+git remote add origin <remote-repository-URL>
+
+git push -u origin master
+
+https://github.com/tom880245/draw.git
+
+
+或
+
+git clone https://github.com/USERNAME/REPOSITORY.git
+
+cd draw
+
+git add .
+git commit -m "Initial project commit"
+git push origin master
+
