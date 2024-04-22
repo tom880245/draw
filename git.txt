@@ -3,7 +3,7 @@ git add .
 
 git commit -m "Initial commit"
 
-git remote add origin <remote-repository-URL>
+git remote add origin https://github.com/tom880245/draw.git
 
 git push -u origin master
 
