@@ -129,3 +129,37 @@ plt = penguin_bill * mapping(body_mass, color = :species, layout = :sex)
 draw(plt; axis = axis)
 
 ##Machine Learning
+using LIBSVM, Random
+
+# use approximately 80% of penguins for training
+Random.seed!(1234) # for reproducibility
+N = nrow(penguins)
+train = fill(false, N)
+perm = randperm(N)
+train_idxs = perm[1:floor(Int, 0.8N)]
+train[train_idxs] .= true
+
+# fit model on training data and make predictions on the whole dataset
+X = hcat(penguins.bill_length_mm, penguins.bill_depth_mm)
+y = penguins.species
+model = SVC() # Support-Vector Machine Classifier
+fit!(model, X[train, :], y[train])
+ŷ = predict(model, X)
+
+# incorporate relevant information in the dataset
+penguins.train = train
+penguins.predicted_species = ŷ
+
+Now, we have all the columns we need to evaluate how well our classifier performed.
+
+axis = (width = 225, height = 225)
+dataset =:train => renamer(true => "training", false => "testing") => "Dataset"
+accuracy = (:species, :predicted_species) => isequal => "accuracy"
+plt = data(penguins) *
+    expectation() *
+    mapping(:species, accuracy) *
+    mapping(col = dataset)
+draw(plt; axis = axis)
+
+
+#ml
