@@ -150,7 +150,7 @@ fit!(model, X[train, :], y[train])
 penguins.train = train
 penguins.predicted_species = ŷ
 
-Now, we have all the columns we need to evaluate how well our classifier performed.
+#Now, we have all the columns we need to evaluate how well our classifier performed.
 
 axis = (width = 225, height = 225)
 dataset =:train => renamer(true => "training", false => "testing") => "Dataset"
@@ -162,4 +162,48 @@ plt = data(penguins) *
 draw(plt; axis = axis)
 
 
-#ml
+#ML  機械學習  支持向量機
+
+using LIBSVM, Random
+
+# use approximately 80% of penguins for training
+Random.seed!(1234) # for reproducibility
+
+N = nrow(penguins)
+train = fill(false, N)
+#創建N個vector 
+perm = randperm(N)
+train_idxs = perm[1:floor(Int, 0.8N)]
+train[train_idxs] .= true
+
+# fit model on training data and make predictions on the whole dataset
+X = hcat(penguins.bill_length_mm, penguins.bill_depth_mm)
+y = penguins.species
+model = SVC() # Support-Vector Machine Classifier
+fit!(model, X[train, :], y[train])
+ŷ = predict(model, X)
+
+# incorporate relevant information in the dataset
+penguins.train = train
+penguins.predicted_species = ŷ
+
+axis = (width = 225, height = 225)
+dataset =:train => renamer(true => "training", false => "testing") => "Dataset"
+accuracy = (:species, :predicted_species) => isequal => "accuracy"
+plt = data(penguins) *
+    expectation() *
+    mapping(:species, accuracy) *
+    mapping(col = dataset)
+draw(plt; axis = axis)
+
+
+prediction = :predicted_species => "predicted species"
+datalayer = mapping(color = prediction, row = :species, col = dataset)
+plt = penguin_bill * datalayer
+draw(plt; axis = axis)
+
+pdflayer = density() * visual(Contour, colormap=Reverse(:grays)) * mapping(group = :species)
+layers = pdflayer + datalayer
+plt = penguin_bill * layers
+draw(plt; axis = axis)
+
